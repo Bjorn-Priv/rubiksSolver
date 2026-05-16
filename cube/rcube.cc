@@ -1,4 +1,4 @@
-#include "rcube.h"
+#include "include/rcube.h"
 
 RCube::RCube() {
   setCubeCubitTypes();
@@ -28,8 +28,8 @@ void RCube::inferCubeFaces() {
       face[ORANGE][i][j] = cube[j][i][2].X;
       face[GREEN][i][j] = cube[i][2][j].Y;
       face[BLUE][i][j] = cube[MAX_D-i-1][0][j].Y;
-    }
-  }
+    } //for
+  } //for
 } //inferCubeFaces
 
 void RCube::setCubeCubitTypes() {
@@ -67,8 +67,8 @@ void RCube::printCube(std::ostream &os) {
     for (int j = (MAX_D-1); j >= 0; j--) {
       for (size_t k = 0; k < MAX_D; k++) {
         os << (int)face[i][j][k] << " ";
-      }
+      } //for
       os << "\n";
-    }
-  }
+    } //for
+  } //for
 } //printCube

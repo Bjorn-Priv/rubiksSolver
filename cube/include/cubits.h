@@ -3,6 +3,14 @@
 
 #include "constants.h"
 
+//colour of the face of the cubit
+//WHITE
+//GREEN
+//RED
+//ORANGE
+//BLUE
+//YELLOW
+//EMPTY
 enum Colour : uint8 {
   WHITE,
   GREEN,
@@ -13,6 +21,11 @@ enum Colour : uint8 {
   EMPTY
 };
 
+//type of the cubit
+//CORNER
+//EDGE
+//MIDDLE
+//CENTROID
 enum CubitType : uint8 {
   CORNER,
   EDGE,
