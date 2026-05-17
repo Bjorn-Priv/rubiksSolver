@@ -1,5 +1,5 @@
 #include "cube/include/rcube.h"
-#include "renderer/include/cuberenderer.h"
+#include "app/include/cuberenderer.h"
 #include "shader/shader.h"
 
 //shader files 
@@ -15,7 +15,18 @@ void main_loop(SDL_Window* window, GLuint shader) {
   uint64 currentTicks; //current tick count (in miliseconds)
 
   RCube cube; //main logical rubiks cube
-  CubeRenderer renderer(&cube, shader); //main renderer for 3d cube
+
+  //action containers
+  std::vector<CubeAction> cubeActions;
+  CameraAction cameraAction;
+
+  Camera camera(&cameraAction, 5.0f); //main camera to be changed
+
+  Keyboard keyboard(&cameraAction, &cubeActions); //keyboard state reader
+  int nKeys;
+
+  CubeRenderer renderer(&cube, &cubeActions, &camera, shader); //main renderer for 3d cube
+
   SDL_Event event; //event stack
 
   while (running) { //main loop
@@ -31,10 +42,8 @@ void main_loop(SDL_Window* window, GLuint shader) {
         glViewport(0, 0, w, h);
       }
 
-      if (event.type == SDL_EVENT_KEY_DOWN) { 
-        //create switch case for all moves
-        SDL_Log("Key was pressed");
-        SDL_Log("Keycode: %i", event.key.key);
+      if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
+        keyboard.readState(SDL_GetKeyboardState(&nKeys), nKeys);
       }
     } //while
 
@@ -49,6 +58,10 @@ void main_loop(SDL_Window* window, GLuint shader) {
     deltaTime = (currentTicks - lastTicks) / 1000.0f;
 
     lastTicks = currentTicks; //update lastticks
+
+    if (!cameraAction.isEmpty()) { //camera needs to be changed
+      camera.handleAction(deltaTime);
+    }
 
     //update and render cube
     renderer.update(deltaTime);

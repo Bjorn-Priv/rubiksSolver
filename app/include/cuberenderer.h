@@ -1,18 +1,7 @@
 #ifndef HCUBERENH
 #define HCUBERENH
 
-#include "../../cube/include/rcube.h"
-
-#include <vector>
-
-#include <GL/glew.h>
-
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_video.h>
-#include <SDL3/SDL_opengl.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "camera.h"
 
 //datastructure to hold orientation of cubit
 struct RenderCubit {
@@ -42,12 +31,16 @@ class CubeRenderer {
   private: 
     //pseudo logic cube to keep track of cubit positions
     RenderCubit cubits[MAX_D][MAX_D][MAX_D];
-    
+
     //animation stack
     MoveAnimation animation;
 
     //main logical cube
     RCube *cube = nullptr;
+    //cube actions container
+    std::vector<CubeAction> *actions = nullptr;
+    //main camera
+    Camera *camera = nullptr;
 
     //main shader program to be used
     GLuint shaderProgram;
@@ -83,14 +76,9 @@ class CubeRenderer {
     GLint viewLoc;
     GLint projLoc;
 
-    //main viewing matrix
-    glm::mat4 view;
-    //3d projection matrix
-    glm::mat4 projection;
-
   public: 
     //default constructor
-    CubeRenderer(RCube *c, GLuint shader);
+    CubeRenderer(RCube *c, std::vector<CubeAction> *a, Camera *cam, GLuint shader);
 
     //default destructor
     ~CubeRenderer();

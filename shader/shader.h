@@ -1,4 +1,4 @@
-#include "../renderer/include/cuberenderer.h"
+#include "../app/include/cuberenderer.h"
 #include <fstream>
 
 //reads contents of file <name> into out

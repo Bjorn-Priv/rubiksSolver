@@ -1,32 +1,6 @@
 #include "include/cuberenderer.h"
 
-CubeRenderer::CubeRenderer(RCube *c, GLuint shader) : cube(c) {
-  //create viewing vector space
-  //using three vectors as it is a 3d space
-  //eye : location of camera 
-  //center : the location where the camera is looking
-  //up : defines the Y-axis (0, 1, 0) is default up to positive y
-    //basically which way is up in respect to (0, 0, 0)
-  //the X-axis and Z-axis are calculated based on eye and center
-  view = glm::lookAt(
-    glm::vec3(6, 6, 6),
-    glm::vec3(0, 0, 0),
-    glm::vec3(0, 1, 0)
-  );
-
-  //create a projection matrix so that we can see depth
-  //4 arguments
-  //FOV : how wide the camera lens is in radians (this case 45 degrees)
-  //aspect ratio : width / height (this case just 1 to 1)
-  //near clipping plane : anything closer than this distance to the camera
-    //will not be rendered to prevent clipping
-  //far clipping plane : maximum draw distance (any object further away is ignored)
-  projection = glm::perspective(
-    glm::radians(45.0f),
-    1.0f,
-    0.1f,
-    100.0f
-  );
+CubeRenderer::CubeRenderer(RCube *c, std::vector<CubeAction> *a, Camera *cam, GLuint shader) : cube(c), actions(a), camera(cam) {
   shaderProgram = shader;
 
   //grab location of all uniform variables in the shader program
@@ -125,8 +99,8 @@ void CubeRenderer::render() {
 
   //set all global variables in the shader
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
-  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-  glUniformMatrix4fv(projLoc, 1, GL_FALSE, &projection[0][0]);
+  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &(camera->getView()[0][0]));
+  glUniformMatrix4fv(projLoc, 1, GL_FALSE, &(camera->getProjection()[0][0]));
 
   //set used vertex array to VAO
   glBindVertexArray(cubeVAO);
