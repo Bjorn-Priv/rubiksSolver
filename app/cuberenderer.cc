@@ -15,24 +15,45 @@ CubeRenderer::CubeRenderer(RCube *c, std::vector<CubeAction> *a, Camera *cam, GL
 void CubeRenderer::initMesh() {
   //all vertex positions 
   float vertices[] = {
-    -0.5f, -0.5f, -0.5f,
-    0.5f, -0.5f, -0.5f,
-    0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-    0.5f, -0.5f,  0.5f,
-    0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f
+    -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, //red 0
+     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, //red 1
+     0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, //red 2
+    -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, //red 3
+
+     0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, //blue 4
+     0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, //blue 5
+     0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, //blue 6
+     0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, //blue 7
+
+    -0.5f,  0.5f, -0.5f, 1.0f, 0.647f, 0.0f, //orange 8 
+    -0.5f, -0.5f, -0.5f, 1.0f, 0.647f, 0.0f, //orange 9
+    -0.5f,  0.5f,  0.5f, 1.0f, 0.647f, 0.0f, //orange 10
+    -0.5f, -0.5f,  0.5f, 1.0f, 0.647f, 0.0f, //orange 11
+
+    -0.5f,  0.5f,  0.5f, 0.0f, 0.502f, 0.0f, //green 12
+    -0.5f, -0.5f,  0.5f, 0.0f, 0.502f, 0.0f, //green 13
+     0.5f,  0.5f,  0.5f, 0.0f, 0.502f, 0.0f, //green 14
+     0.5f, -0.5f,  0.5f, 0.0f, 0.502f, 0.0f, //green 15
+
+    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, //yellow 16 
+    -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, //yellow 17
+     0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, //yellow 18 
+     0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, //yellow 19
+
+    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, //white 20
+     0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, //white 21
+     0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, //white 22
+    -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, //white 23
   };
 
   //all vertex indices used to form triangles 
   unsigned int indices[] = {
     0,1,2, 2,3,0,
-    4,5,6, 6,7,4,
-    0,4,7, 7,3,0,
-    1,5,6, 6,2,1,
-    3,2,6, 6,7,3,
-    0,1,5, 5,4,0
+    4,5,6, 6,7,5,
+    8,9,10, 10,11,9,
+    12,13,14, 14,15,13,
+    16,17,18, 18,19,16,
+    20,21,22, 22,23,20
   };
 
   //generate VAO, VBO and EBO
@@ -66,13 +87,20 @@ void CubeRenderer::initMesh() {
   //offset : where to start reading in the array
   glVertexAttribPointer(
     0, 3, GL_FLOAT, GL_FALSE,
-    3 * sizeof(float),
+    6 * sizeof(float),
     (void*)0
   );
-
   //allow the use of the VBO during rendering
   //pass the attribute location value as specified in the shader program
   glEnableVertexAttribArray(0);
+
+  glVertexAttribPointer(
+    1, 3, GL_FLOAT, GL_FALSE,
+    6 * sizeof(float),
+    (void*)(3 * sizeof(float))
+  );
+
+  glEnableVertexAttribArray(1);
 
   //unbind the VAO so we can't accidentally change it later
   glBindVertexArray(0);

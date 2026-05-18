@@ -6,6 +6,10 @@
 const char *VERTEX_SHADER = "shader/shader.vert";
 const char *FRAGMENT_SHADER = "shader/shader.frag";
 
+const char *NAME = "RCUBE";
+const int HEIGHT = 320;
+const int WIDTH = 320;
+
 //runs the main loop of the program
 void main_loop(SDL_Window* window, GLuint shader) {
   bool running = true; //main program boolean
@@ -20,7 +24,7 @@ void main_loop(SDL_Window* window, GLuint shader) {
   std::vector<CubeAction> cubeActions;
   CameraAction cameraAction;
 
-  Camera camera(&cameraAction, 5.0f); //main camera to be changed
+  Camera camera(&cameraAction); //main camera to be changed
 
   Keyboard keyboard(&cameraAction, &cubeActions); //keyboard state reader
   int nKeys;
@@ -38,8 +42,14 @@ void main_loop(SDL_Window* window, GLuint shader) {
       if (event.type == SDL_EVENT_WINDOW_RESIZED) { //window is resized
         int w = event.window.data1; //grab width
         int h = event.window.data2; //grab height
-        //update gl viewport so that cube stays centered
-        glViewport(0, 0, w, h);
+        int offsetW = 0;
+        if (w > h) {
+          offsetW = w-h;
+          w = h;
+        }
+        //SDL_Log("width: %i, Height: %i", w, h);
+        //update gl viewport so that cube stays centered in a square viewport
+        glViewport((0.5f * offsetW), 0, w, h);
       }
 
       if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
@@ -121,7 +131,7 @@ bool initGlew() {
 
   //needs to be same size as window so that rendered object is centered
   //is often changed in main event loop
-  glViewport(0, 0, 480, 480);
+  glViewport(0, 0, WIDTH, HEIGHT);
 
   //main background colour of rendering window
   glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
@@ -163,9 +173,6 @@ int main() {
   GLuint shader; //shader for openGL
 
   //window attributes
-  const char *NAME = "RCUBE";
-  const int HEIGHT = 480;
-  const int WIDTH = 480;
   const SDL_WindowFlags FLAGS = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
   if (!createWindow(NAME, HEIGHT, WIDTH, FLAGS, window)) { //create window
@@ -174,6 +181,7 @@ int main() {
     SDL_Quit();
     return 0;
   }
+  SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
   if (!createGLContext(window, gl_ctx)) { //gl context creation
     SDL_Log("Create GL context failed!");

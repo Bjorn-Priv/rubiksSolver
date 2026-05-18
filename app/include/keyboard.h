@@ -10,8 +10,9 @@ struct CameraAction {
   int X = 0;
   int Y = 0;
   int zoom = 0;
+  int rotate = 0;
 
-  bool isEmpty() {return X == 0 && Y == 0 && zoom == 0;}
+  bool isEmpty() {return X == 0 && Y == 0 && zoom == 0 && rotate == 0;}
 };
 
 struct CubeAction {

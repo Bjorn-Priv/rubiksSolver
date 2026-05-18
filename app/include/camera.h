@@ -48,14 +48,14 @@ class Camera {
     //action container
     CameraAction *action = nullptr;
 
-    float velocity;
-
     float getRadius() const;
+
+    float getVelocity() const;
     
   public:
     //default constructor
     //pass both a container for actions and the velocity of the camera
-    Camera(CameraAction *a, float v);
+    Camera(CameraAction *a);
 
     //getter for view
     glm::highp_mat4 getView() 
