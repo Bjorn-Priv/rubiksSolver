@@ -50,6 +50,8 @@ class RCube {
     //prints the cube faces in unfolded die form
     void printCube(std::ostream&);
 
+    Cubit getCubit(int x, int y, int z) const {return cube[z][y][x];}
+
     //default destructor
     ~RCube(){};
 };

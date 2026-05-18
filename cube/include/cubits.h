@@ -2,7 +2,7 @@
 #define HCUBITH
 
 #include "constants.h"
-
+#include <vector>
 //colour of the face of the cubit
 //WHITE
 //GREEN

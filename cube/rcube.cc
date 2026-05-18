@@ -17,6 +17,9 @@ void RCube::setCubeColoursSolved() {
       cube[i][j][2].X = ORANGE; //right
     } //for
   } //for
+  cube[0][0][0].X = BLUE;
+  cube[0][0][0].Z = RED;
+  cube[0][0][0].Y = WHITE;
 } //setCubeColoursSolved
 
 void RCube::inferCubeFaces() {

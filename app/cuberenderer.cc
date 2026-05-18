@@ -1,7 +1,44 @@
 #include "include/cuberenderer.h"
+#include <vector>
 
 CubeRenderer::CubeRenderer(RCube *c, std::vector<CubeAction> *a, Camera *cam, GLuint shader) : cube(c), actions(a), camera(cam) {
   shaderProgram = shader;
+
+  float X[3] = {-1.0f, 0.0f, 1.0f};
+  float Y[3] = {-1.0f, 0.0f, 1.0f};
+  float Z[3] = {-1.0f, 0.0f, 1.0f};
+
+  unsigned int *tempIndex;
+  int Voffset = 0;
+  int Ioffset = 0;
+  for (size_t z = 0; z < MAX_D; z++) {
+    for (size_t y = 0; y < MAX_D; y++) {
+      for (size_t x = 0; x < MAX_D; x++) {
+        SDL_Log("with x, y, z : %f, %f, %f", X[x], Y[y], Z[z]);
+        cubits[x][y][z].setVertices(&vertices[Voffset]);
+        cubits[x][y][z].setCentroid(glm::vec3(X[x], Y[y], Z[z]));
+        cubits[x][y][z].setCubitData(cube->getCubit(x, y, z));
+        tempIndex = cubits[x][y][z].initCubit();
+
+        unsigned int vertexBase = Voffset / 6;
+        for (int i = 0; i < 36; i++) {
+          indices[i+Ioffset] = tempIndex[i]+vertexBase;
+        }
+        cubits[x][y][z].indexOffset = Ioffset;
+        Ioffset += 36;
+        Voffset += (VERTICESCOUNT*6);
+      }
+    }
+  }
+
+  // unsigned int indices[] = {
+  //   0,1,2, 2,3,1,
+  //   4,5,6, 6,7,5,
+  //   8,9,10, 10,11,9,
+  //   12,13,14, 14,15,13,
+  //   16,17,18, 18,19,16,
+  //   20,21,22, 22,23,20
+  // };
 
   //grab location of all uniform variables in the shader program
   //uniform variables are practically global variables that you can change
@@ -10,51 +47,13 @@ CubeRenderer::CubeRenderer(RCube *c, std::vector<CubeAction> *a, Camera *cam, GL
   projLoc = glGetUniformLocation(shaderProgram, "projection");
 
   initMesh();
-}
+} //default constructor
 
 void CubeRenderer::initMesh() {
-  //all vertex positions 
-  float vertices[] = {
-    -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, //red 0
-     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, //red 1
-     0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, //red 2
-    -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, //red 3
-
-     0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, //blue 4
-     0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, //blue 5
-     0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, //blue 6
-     0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, //blue 7
-
-    -0.5f,  0.5f, -0.5f, 1.0f, 0.647f, 0.0f, //orange 8 
-    -0.5f, -0.5f, -0.5f, 1.0f, 0.647f, 0.0f, //orange 9
-    -0.5f,  0.5f,  0.5f, 1.0f, 0.647f, 0.0f, //orange 10
-    -0.5f, -0.5f,  0.5f, 1.0f, 0.647f, 0.0f, //orange 11
-
-    -0.5f,  0.5f,  0.5f, 0.0f, 0.502f, 0.0f, //green 12
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.502f, 0.0f, //green 13
-     0.5f,  0.5f,  0.5f, 0.0f, 0.502f, 0.0f, //green 14
-     0.5f, -0.5f,  0.5f, 0.0f, 0.502f, 0.0f, //green 15
-
-    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, //yellow 16 
-    -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, //yellow 17
-     0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, //yellow 18 
-     0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, //yellow 19
-
-    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, //white 20
-     0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, //white 21
-     0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, //white 22
-    -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, //white 23
-  };
-
-  //all vertex indices used to form triangles 
-  unsigned int indices[] = {
-    0,1,2, 2,3,0,
-    4,5,6, 6,7,5,
-    8,9,10, 10,11,9,
-    12,13,14, 14,15,13,
-    16,17,18, 18,19,16,
-    20,21,22, 22,23,20
-  };
+  
+  // for (size_t i = 0; i < vertices.size(); i+=6) {
+  //   SDL_Log("coords: %f, %f, %f, colour: %f, %f, %f", vertices[i], vertices[i+1], vertices[i+2], vertices[i+3], vertices[i+4], vertices[i+5]);
+  // }
 
   //generate VAO, VBO and EBO
   glGenVertexArrays(1, &cubeVAO);
@@ -110,34 +109,43 @@ void CubeRenderer::render() {
   //define which shader program to use
   glUseProgram(shaderProgram);
 
-  //grab single cubit
-  RenderCubit& c = cubits[1][1][1];
+  glDisable(GL_CULL_FACE);
 
-  //create identity matrix
-  glm::mat4 model(1.0f);
-
-  //multiply model by a vector
-  model = glm::translate(
-    model,
-    glm::vec3(0.0f, 0.0f, 0.0f)
-  );
-
-  //multiply model by orientation
-  model *= c.orientation;
-
-  //set all global variables in the shader
-  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+  //set 2 global varaiables
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &(camera->getView()[0][0]));
   glUniformMatrix4fv(projLoc, 1, GL_FALSE, &(camera->getProjection()[0][0]));
 
   //set used vertex array to VAO
   glBindVertexArray(cubeVAO);
-  //draw all elements
-  //mode: TRIANGLES
-  //count: amount of elements
-  //type: the data type of the values in indices
-  //indices: a byte offset into the buffer bound to draw from
-  glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+
+  for (size_t z = 0; z < MAX_D; z++) {
+    for (size_t y = 0; y < MAX_D; y++) {
+      for (size_t x = 0; x < MAX_D; x++) {
+        RenderCubit& c = cubits[x][y][z]; //grab cubit
+
+        glm::mat4 model(1.0f); //create identity matrix
+
+        //set cubit rotation
+        model *= c.orientation;
+
+        //set model in shader program
+        glUniformMatrix4fv(
+          modelLoc,
+          1,
+          GL_FALSE,
+          &model[0][0]
+        );
+
+        //draw cubit
+        glDrawElements(
+          GL_TRIANGLES,
+          indexCount,
+          GL_UNSIGNED_INT,
+          (void*)(c.indexOffset * sizeof(unsigned int))
+        );
+      }
+    }
+  }
   //unbind VAO
   glBindVertexArray(0);
 }

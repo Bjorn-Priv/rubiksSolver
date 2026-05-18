@@ -1,14 +1,8 @@
 #ifndef HCUBERENH
 #define HCUBERENH
 
-#include "camera.h"
+#include "rendercubit.h"
 
-//datastructure to hold orientation of cubit
-struct RenderCubit {
-  //holds the orientation of the cubit 
-  //starts on identity matrix
-  glm::mat4 orientation = glm::mat4(1.0f);
-};
 
 //datastructure to hold all data for the animation movement of a side
 struct MoveAnimation {
@@ -67,6 +61,9 @@ class CubeRenderer {
     //and it practically tells the GPU stuff like use vertices 1, 3, and 5 to draw a triangle
     //with an EBO you can now use glDrawElements instead of glDrawArrays
     GLuint cubeEBO;
+
+    float vertices[VERTICESCOUNT*CUBITCOUNT*6];
+    unsigned int indices[CUBITCOUNT*12*3];
 
     //number of elements to be drawn
     int indexCount = 36;
