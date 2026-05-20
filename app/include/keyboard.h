@@ -3,6 +3,8 @@
 
 #include <SDL3/SDL_keyboard.h>
 #include <vector>
+#include <queue>
+#include "../../cube/include/rcube.h"
 
 #include <SDL3/SDL.h>
 
@@ -16,20 +18,22 @@ struct CameraAction {
 };
 
 struct CubeAction {
-
+  int move;
+  Rotation rotate;
 };
 
 //main class that retrieves actions from keyboard state
 class Keyboard {
   private:
     CameraAction *cameraAction = nullptr;
-    std::vector<CubeAction> *cubeAction = nullptr;
+    std::queue<CubeAction> *cubeAction = nullptr;
 
     void readCamera(const bool *keyboard, int size);
+    void readCube(const bool *keyboard, int size);
 
   public:
     //standard constructor
-    Keyboard(CameraAction *a, std::vector<CubeAction> *b) : 
+    Keyboard(CameraAction *a, std::queue<CubeAction> *b) : 
       cameraAction(a), cubeAction(b){};
 
     //reads all actions into its containers from keyboard state

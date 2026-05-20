@@ -131,4 +131,22 @@ void RenderCubit::createZWall(Colour col, float offset, int &Vindex, int &Iindex
   Iindex+=6;
 }
 
+void RenderCubit::update(float angle, glm::vec3 center, glm::vec3 axis) {
+  for (int i = 0; i < NVERTICES_PER_CUBIT; i++) {
+    int index = i*6;
+    glm::vec3 location = {data[index], data[index+1], data[index+2]};
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, center);
+    trans = glm::rotate(trans, angle, axis);
+    trans = glm::translate(trans, -center);
+
+    glm::vec4 result = trans * glm::vec4(location, 1.0f);
+    glm::vec3 finalPos = glm::vec3(result);
+
+    data[index] = finalPos[0];
+    data[index+1] = finalPos[1];
+    data[index+2] = finalPos[2];
+  }
+}
+
 

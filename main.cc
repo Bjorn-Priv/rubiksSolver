@@ -21,7 +21,7 @@ void main_loop(SDL_Window* window, GLuint shader) {
   RCube cube; //main logical rubiks cube
 
   //action containers
-  std::vector<CubeAction> cubeActions;
+  std::queue<CubeAction> cubeActions;
   CameraAction cameraAction;
 
   Camera camera(&cameraAction); //main camera to be changed
@@ -60,7 +60,7 @@ void main_loop(SDL_Window* window, GLuint shader) {
     //reset color buffer and depth buffer
     //color buffer resets screen to background colour 
     //depth buffer resets depth buffer so that new 3d objects are 
-      //drawn in correct foreground background order
+    //drawn in correct foreground background order
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //calculate deltatime
@@ -71,6 +71,10 @@ void main_loop(SDL_Window* window, GLuint shader) {
 
     if (!cameraAction.isEmpty()) { //camera needs to be changed
       camera.handleAction(deltaTime);
+    }
+    if (!cubeActions.empty()) {
+      SDL_Log("CALLING START MOVE");
+      renderer.startMove();
     }
 
     //update and render cube

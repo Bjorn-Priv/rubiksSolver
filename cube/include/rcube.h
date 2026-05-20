@@ -2,15 +2,22 @@
 #define HRCUBEH
 
 #include "cubits.h"
+#include <random>
 
 //Degrees of rotation 
 //CLOCKWISE
 //COUNT_COCKWISE
 //HALF_CIRCLE
 enum Rotation : uint8 {
-  CLOCKWISE,
-  COUNT_CLOCKWISE,
-  HALF_CIRCLE
+  CLOCKWISE = 1,
+  HALF_CIRCLE = 2,
+  COUNT_CLOCKWISE = 3
+};
+
+struct Coords {
+  int z;
+  int y;
+  int x;
 };
 
 //main logical rubiks cube class
@@ -31,21 +38,33 @@ class RCube {
     void inferCubeFaces();
     //sets all cubit types to their correct value
     void setCubeCubitTypes();
-      
+
+    void swapXYcol(Coords dest, const Cubit &src);
+    void swapXZcol(Coords dest, const Cubit &src);
+    void swapYZcol(Coords dest, const Cubit &src);
+
+    void RLM(Rotation, int x);
+    void UDE(Rotation, int y);
+    void FBS(Rotation, int z);
+
   public:
     //default constructor
     RCube();
 
-    bool R_Rotate(Rotation);
-    bool L_Rotate(Rotation);
-    bool U_Rotate(Rotation);
-    bool D_Rotate(Rotation);
-    bool F_Rotate(Rotation);
-    bool B_Rotate(Rotation);
+    void R_Rotate(Rotation);
+    void L_Rotate(Rotation);
+    void U_Rotate(Rotation);
+    void D_Rotate(Rotation);
+    void F_Rotate(Rotation);
+    void B_Rotate(Rotation);
 
-    bool M_Rotate(Rotation);
-    bool E_Rotate(Rotation);
-    bool S_Rotate(Rotation);
+    void M_Rotate(Rotation);
+    void E_Rotate(Rotation);
+    void S_Rotate(Rotation);
+    
+    void performMove(int num, int rot);
+
+    void shuffleCube(int moves);
 
     //prints the cube faces in unfolded die form
     void printCube(std::ostream&);

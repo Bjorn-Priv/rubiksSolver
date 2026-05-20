@@ -17,6 +17,7 @@ class RenderCubit {
     glm::vec3 getCentroid() const {return centroid;};
     void setCubitData(Cubit c) {cubit = c;};
     unsigned int *initCubit();
+    void update(float angle, glm::vec3 center, glm::vec3 axis);
 
     RenderCubit(){};
 
@@ -25,6 +26,7 @@ class RenderCubit {
     unsigned int indices[36];
     Cubit cubit;
     glm::vec3 centroid = {0.0f, 0.0f, 0.0f};
+
     //helper functions to create vertices and indices
     void createXWall(Colour col, float offset, int &Vindex, int &Iindex);
 
