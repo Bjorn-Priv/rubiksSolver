@@ -4,7 +4,7 @@
 CubeRenderer::CubeRenderer(RCube *c, std::queue<CubeAction> *a, Camera *cam, GLuint shader) : cube(c), actions(a), camera(cam) {
   shaderProgram = shader;
 
-  float X[3] = {-1.0f, 0.0f, 1.0f};
+  float X[3] = {1.0f, 0.0f, -1.0f};
   float Y[3] = {-1.0f, 0.0f, 1.0f};
   float Z[3] = {-1.0f, 0.0f, 1.0f};
 
@@ -32,15 +32,6 @@ CubeRenderer::CubeRenderer(RCube *c, std::queue<CubeAction> *a, Camera *cam, GLu
       }
     }
   }
-
-  // unsigned int indices[] = {
-  //   0,1,2, 2,3,1,
-  //   4,5,6, 6,7,5,
-  //   8,9,10, 10,11,9,
-  //   12,13,14, 14,15,13,
-  //   16,17,18, 18,19,16,
-  //   20,21,22, 22,23,20
-  // };
 
   //grab location of all uniform variables in the shader program
   //uniform variables are practically global variables that you can change
@@ -122,8 +113,8 @@ void CubeRenderer::render() {
 
   //flip x axis cuz GL is stupid and has positive x on the left 
   glm::mat4 global(1.0f);
-  global = glm::scale(global, glm::vec3(-1.0f, 1.0f, 1.0f));
-
+  global = glm::rotate(global, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+  
   for (size_t z = 0; z < MAX_D; z++) {
     for (size_t y = 0; y < MAX_D; y++) {
       for (size_t x = 0; x < MAX_D; x++) {
@@ -164,7 +155,7 @@ void CubeRenderer::update(float deltatime) {
   float angle = animation.front().speed * deltatime;
   bool done = false;
   
-  if (animation.front().targetAngle <= animation.front().currentAngle + angle) {
+  if (std::abs(animation.front().targetAngle) <= std::abs(animation.front().currentAngle + angle)) {
     angle = animation.front().targetAngle - animation.front().currentAngle;
     done = true;
   }
@@ -175,7 +166,7 @@ void CubeRenderer::update(float deltatime) {
   animation.front().currentAngle += angle;
 
   glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-  
+
   glBufferSubData(
     GL_ARRAY_BUFFER,
     0,
@@ -195,20 +186,20 @@ void CubeRenderer::startMove() {
   Rotation direction = actions->front().rotate;
   SDL_Log("Move: %i, Rotation: %i", move, (int) direction);
   MoveAnimation newMove;
-  int direcMultiply;
+  float direcMultiply;
   actions->pop();
 
   if (direction == CLOCKWISE) {
-    direcMultiply = 1;
+    direcMultiply = 1.0f;
   } else if (direction == HALF_CIRCLE) {
-    direcMultiply = 2;
+    direcMultiply = 2.0f;
   } else {
-    direcMultiply = -1;
+    direcMultiply = -1.0f;
   }
   newMove.axis = retrieveAxis(move);
 
   newMove.rotation = direction;
-  newMove.speed = 3.0f;
+  newMove.speed = 2.0f;
   newMove.move = move;
   newMove.targetAngle = direcMultiply * glm::half_pi<float>();
   newMove.currentAngle = 0.0f;
