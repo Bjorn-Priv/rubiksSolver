@@ -1,6 +1,20 @@
 #include "include/cuberenderer.h"
 #include <vector>
 
+void CubeRenderer::updateCentroids() {
+  float X[3] = {1.0f, 0.0f, -1.0f};
+  float Y[3] = {-1.0f, 0.0f, 1.0f};
+  float Z[3] = {-1.0f, 0.0f, 1.0f};
+
+  for (size_t z = 0; z < MAX_D; z++) { //for all z
+    for (size_t y = 0; y < MAX_D; y++) { //for all y
+      for (size_t x = 0; x < MAX_D; x++) { //for all x
+        cubitsP[x][y][z]->setCentroid(glm::vec3(X[x], Y[y], Z[z]));
+      } //for
+    } //for
+  } //for
+} //updateCentroids
+
 CubeRenderer::CubeRenderer(RCube *c, std::queue<CubeAction> *a, Camera *cam, GLuint shader) : cube(c), actions(a), camera(cam) {
   shaderProgram = shader;
 
@@ -164,6 +178,7 @@ void CubeRenderer::update(float deltatime) {
   if (done) { //do all logical moves if animation is done
     cube->performMove((MoveID)animation.front().move, animation.front().rotation);
     doPointerMove();
+    updateCentroids();
     animation.pop();
   }
 } //update
@@ -308,18 +323,18 @@ void CubeRenderer::M_Rotate(Rotation rot) {
 void CubeRenderer::UDE(Rotation rot, int y) {
   for (uint8 i = 0; i < rot; i++) { //for correct direction
     //move corners
-    RenderCubit *temp = cubitsP[0][y][0]; //old front left
-    cubitsP[0][y][0] = cubitsP[2][y][0]; //new front left is old front right 
-    cubitsP[2][y][0] = cubitsP[2][y][2]; //new front right is old back right
-    cubitsP[2][y][2] = cubitsP[0][y][2]; //new back right is old back left
-    cubitsP[0][y][2] = temp; //new back left is old front left 
+    RenderCubit *temp = cubitsP[0][y][0]; //temp is old front left
+    cubitsP[0][y][0] = cubitsP[0][y][2]; //new front left is old back left
+    cubitsP[0][y][2] = cubitsP[2][y][2]; //new back left is old back right
+    cubitsP[2][y][2] = cubitsP[2][y][0]; //new back right is old front right
+    cubitsP[2][y][0] = temp; //new front 
 
     //move edges
-    temp = cubitsP[1][y][0]; //old front middle
-    cubitsP[1][y][0] = cubitsP[2][y][1]; //new front middle becomes old right middle
-    cubitsP[2][y][1] = cubitsP[1][y][2]; //new right middle becomes old back middle
-    cubitsP[1][y][2] = cubitsP[0][y][1]; //new back middle becomes old left middle
-    cubitsP[0][y][1] = temp; //new left middle becomes old front middle
+    temp = cubitsP[1][y][0];
+    cubitsP[1][y][0] = cubitsP[0][y][1];
+    cubitsP[0][y][1] = cubitsP[1][y][2];
+    cubitsP[1][y][2] = cubitsP[2][y][1];
+    cubitsP[2][y][1] = temp;
   } //for
 } //UDE
 

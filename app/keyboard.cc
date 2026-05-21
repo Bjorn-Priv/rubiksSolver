@@ -47,21 +47,91 @@ void Keyboard::readCamera(const bool *k, int size) {
 
 void Keyboard::readCube(const bool *k, int size) {
   bool front = k[SDL_SCANCODE_F];
+  bool back = k[SDL_SCANCODE_B];
   bool middle = k[SDL_SCANCODE_M];
+  bool slice = k[SDL_SCANCODE_S];
+  bool equator = k[SDL_SCANCODE_E];
+  bool upper = k[SDL_SCANCODE_U];
+  bool right = k[SDL_SCANCODE_R];
+  bool left = k[SDL_SCANCODE_L];
+  bool down = k[SDL_SCANCODE_D];
+
+  bool shift = k[SDL_SCANCODE_LSHIFT];
+
+  Rotation rot = CLOCKWISE;
+
+  if (shift) rot = COUNT_CLOCKWISE;
+
 
   if (front) {
     SDL_Log("READ F!!!!");
     CubeAction action;
     action.move = F;
-    action.rotate = CLOCKWISE;
+    action.rotate = rot;
+    cubeAction->push(action);
+  }
+
+  if (down) {
+    SDL_Log("READ D!!!!");
+    CubeAction action;
+    action.move = D;
+    action.rotate = rot;
+    cubeAction->push(action);
+  }
+
+  if (right) {
+    SDL_Log("READ R!!!!");
+    CubeAction action;
+    action.move = R;
+    action.rotate = rot;
+    cubeAction->push(action);
+  }
+
+  if (left) {
+    SDL_Log("READ L!!!!");
+    CubeAction action;
+    action.move = L;
+    action.rotate = rot;
+    cubeAction->push(action);
+  }
+
+  if (equator) {
+    SDL_Log("READ E!!!!");
+    CubeAction action;
+    action.move = E;
+    action.rotate = rot;
+    cubeAction->push(action);
+  }
+
+  if (upper) {
+    SDL_Log("READ U!!!!");
+    CubeAction action;
+    action.move = U;
+    action.rotate = rot;
+    cubeAction->push(action);
+  }
+
+  if (back) {
+    SDL_Log("READ B!!!!");
+    CubeAction action;
+    action.move = B;
+    action.rotate = rot;
+    cubeAction->push(action);
+  }
+
+  if (slice) {
+    SDL_Log("READ S!!!!");
+    CubeAction action;
+    action.move = S;
+    action.rotate = rot;
     cubeAction->push(action);
   }
   
   if (middle) {
-    SDL_Log("READ F!!!!");
+    SDL_Log("READ M!!!!");
     CubeAction action;
     action.move = M;
-    action.rotate = CLOCKWISE;
+    action.rotate = rot;
     cubeAction->push(action);
   }
 } //readCube

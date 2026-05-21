@@ -131,6 +131,9 @@ class CubeRenderer {
               retrieveYsurface(std::vector<RenderCubit*> *vec, int y),
               retrieveZsurface(std::vector<RenderCubit*> *vec, int z);
 
+    //updates all centroids for all cubits at each pointer
+    void updateCentroids();
+
     //initialise the mesh by generating buffers and attributes
     void initMesh();
 
