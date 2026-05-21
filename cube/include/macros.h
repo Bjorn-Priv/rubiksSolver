@@ -1,6 +1,8 @@
 #ifndef HMACROSH
 #define HMACROSH
 
+//ALL MACROS USED
+
 #include <inttypes.h>
 #include <iostream>
 

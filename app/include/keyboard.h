@@ -8,27 +8,35 @@
 
 #include <SDL3/SDL.h>
 
+//main struct to store camera actions
 struct CameraAction {
-  int X = 0;
-  int Y = 0;
-  int zoom = 0;
-  int rotate = 0;
+  int X = 0; //left or right of cube
+  int Y = 0; //over or under cube
+  int zoom = 0; //zoom in or out to cube
 
-  bool isEmpty() {return X == 0 && Y == 0 && zoom == 0 && rotate == 0;}
+  //checks if cameraaction needs updating
+  bool isEmpty() {return X == 0 && Y == 0 && zoom == 0;}
 };
 
+//main struct to store cube actions
 struct CubeAction {
-  int move;
-  Rotation rotate;
+  MoveID move; 
+  Rotation rotate; 
 };
 
 //main class that retrieves actions from keyboard state
 class Keyboard {
   private:
+    //pointer to cameraAction container
     CameraAction *cameraAction = nullptr;
+
+    //pointer to cubeAction queue
     std::queue<CubeAction> *cubeAction = nullptr;
 
+    //read camera instructions from keyboard
     void readCamera(const bool *keyboard, int size);
+
+    //read cube instructions from keyboard
     void readCube(const bool *keyboard, int size);
 
   public:
@@ -36,7 +44,8 @@ class Keyboard {
     Keyboard(CameraAction *a, std::queue<CubeAction> *b) : 
       cameraAction(a), cubeAction(b){};
 
-    //reads all actions into its containers from keyboard state
+    //reads all actions into its containers from keyboard state, 
+    //size is total keys read  
     void readState(const bool *keyboard, int size);
 
     //default destructor

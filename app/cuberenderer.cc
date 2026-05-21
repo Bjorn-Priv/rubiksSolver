@@ -11,31 +11,36 @@ CubeRenderer::CubeRenderer(RCube *c, std::queue<CubeAction> *a, Camera *cam, GLu
   unsigned int *tempIndex;
   int Voffset = 0;
   int Ioffset = 0;
-  for (size_t z = 0; z < MAX_D; z++) {
-    for (size_t y = 0; y < MAX_D; y++) {
-      for (size_t x = 0; x < MAX_D; x++) {
-        cubitsP[x][y][z] = &cubits[x][y][z];
 
-        SDL_Log("with x, y, z : %f, %f, %f", X[x], Y[y], Z[z]);
+  for (size_t z = 0; z < MAX_D; z++) { //for all z
+    for (size_t y = 0; y < MAX_D; y++) { //for all y
+      for (size_t x = 0; x < MAX_D; x++) { //for all x
+        cubitsP[x][y][z] = &cubits[x][y][z]; //grab pointer
+
+        //set data
         cubits[x][y][z].setVertices(&vertices[Voffset]);
         cubits[x][y][z].setCentroid(glm::vec3(X[x], Y[y], Z[z]));
         cubits[x][y][z].setCubitData(cube->getCubit(x, y, z));
+
+        //init cubit render object
         tempIndex = cubits[x][y][z].initCubit();
 
-        unsigned int vertexBase = Voffset / 6;
-        for (int i = 0; i < 36; i++) {
+        unsigned int vertexBase = Voffset / NFLOATS_PER_VERTEX;
+
+        int max = NTRIANGLES_PER_CUBIT * NINTS_PER_TRIANGLE;
+        for (int i = 0; i < max; i++) {
           indices[i+Ioffset] = tempIndex[i]+vertexBase;
-        }
-        cubits[x][y][z].indexOffset = Ioffset;
-        Ioffset += 36;
+        } //for
+
+        cubits[x][y][z].setIndexOffset(Ioffset);
+        Ioffset += max;
         Voffset += (NVERTICES_PER_CUBIT*6);
-      }
-    }
-  }
+      } //for
+    } //for
+  } //for
 
   //grab location of all uniform variables in the shader program
   //uniform variables are practically global variables that you can change
-  modelLoc = glGetUniformLocation(shaderProgram, "model");
   viewLoc = glGetUniformLocation(shaderProgram, "view");
   projLoc = glGetUniformLocation(shaderProgram, "projection");
 
@@ -43,55 +48,41 @@ CubeRenderer::CubeRenderer(RCube *c, std::queue<CubeAction> *a, Camera *cam, GLu
 } //default constructor
 
 void CubeRenderer::initMesh() {
-  
-  // for (size_t i = 0; i < vertices.size(); i+=6) {
-  //   SDL_Log("coords: %f, %f, %f, colour: %f, %f, %f", vertices[i], vertices[i+1], vertices[i+2], vertices[i+3], vertices[i+4], vertices[i+5]);
-  // }
-
   //generate VAO, VBO and EBO
   glGenVertexArrays(1, &cubeVAO);
   glGenBuffers(1, &cubeVBO);
   glGenBuffers(1, &cubeEBO);
 
   //bind all future vertex array function calls to this VAO
-  //bind all future buffer function calls related to ELEMENT_ARRAY_BUFFER to EBO
-  //bind all future buffer function calls related to ARRAY_BUFFER to VBO
   glBindVertexArray(cubeVAO);
+  //bind all future buffer function calls related to ELEMENT_ARRAY_BUFFER to EBO
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO);
+  //bind all future buffer function calls related to ARRAY_BUFFER to VBO
   glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 
   //put data in ARRAY BUFFER and ELEMENT ARRAY BUFFER 
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
 
-  //what data means what in the VBO is specified here
-  //basically in the shader program we created a location = 0 (we can create multiple)
-  //these locations contain data for every attribute of the vertices
-  //in this case we only have position so we only need one
-  //arguments: 
-  //index : the location specified in you .vert shader program
-  //size : number of data points per vertex attribute 
-  //type : datatype of the array elements
-  //normalized : basically if you want fixed point values or just take exact values
-    //GL_TRUE = fixed
-    //GL_FALSE = raw data
-  //stride : byte offset between consecutive attributes
-  //offset : where to start reading in the array
+  //tell gpu that first thruple is an attribute linked to location 0
   glVertexAttribPointer(
     0, 3, GL_FLOAT, GL_FALSE,
     6 * sizeof(float),
     (void*)0
   );
+
   //allow the use of the VBO during rendering
   //pass the attribute location value as specified in the shader program
   glEnableVertexAttribArray(0);
 
+  //tell gpu that second thruple is an attribute linked to location 1
   glVertexAttribPointer(
     1, 3, GL_FLOAT, GL_FALSE,
     6 * sizeof(float),
     (void*)(3 * sizeof(float))
   );
 
+  //allow use of VBO and pass location
   glEnableVertexAttribArray(1);
 
   //unbind the VAO so we can't accidentally change it later
@@ -110,63 +101,59 @@ void CubeRenderer::render() {
 
   //set used vertex array to VAO
   glBindVertexArray(cubeVAO);
-
-  //flip x axis cuz GL is stupid and has positive x on the left 
-  glm::mat4 global(1.0f);
-  global = glm::rotate(global, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
   
-  for (size_t z = 0; z < MAX_D; z++) {
-    for (size_t y = 0; y < MAX_D; y++) {
-      for (size_t x = 0; x < MAX_D; x++) {
+  for (size_t z = 0; z < MAX_D; z++) { //for all z
+    for (size_t y = 0; y < MAX_D; y++) { //for all y
+      for (size_t x = 0; x < MAX_D; x++) { //for all x
         RenderCubit& c = cubits[x][y][z]; //grab cubit
-
-        //set cubit rotation
-        glm::mat4 model = global * c.orientation;
-
-        //set model in shader program
-        glUniformMatrix4fv(
-          modelLoc,
-          1,
-          GL_FALSE,
-          &model[0][0]
-        );
-
         //draw cubit
         glDrawElements(
           GL_TRIANGLES,
           indexCount,
           GL_UNSIGNED_INT,
-          (void*)(c.indexOffset * sizeof(unsigned int))
+          (void*)(c.getIndexOffset() * sizeof(unsigned int))
         );
-      }
-    }
-  }
+      } //for
+    } //for
+  } //for
   //unbind VAO
   glBindVertexArray(0);
-}
+} //render
 
 void CubeRenderer::update(float deltatime) {
-  SDL_Log("IN UPDATE");
-  if (animation.empty()) {SDL_Log("ANIMATION EMPTY"); return;}
+  if (animation.empty()) return;
 
-  if (animation.front().cubits.empty()){
+  if (animation.front().cubits.empty()) { //if no cubits yet
     animation.front().center = retrieveCubits_Center(animation.front().move, &animation.front().cubits);
   }
+  //calculate angle that needs to be traveled
   float angle = animation.front().speed * deltatime;
+
+  //animation finished
   bool done = false;
   
+  //if target angle will be reached or overshot
   if (std::abs(animation.front().targetAngle) <= std::abs(animation.front().currentAngle + angle)) {
     angle = animation.front().targetAngle - animation.front().currentAngle;
     done = true;
   }
 
-  for (auto i : animation.front().cubits) {
-    i->update(angle, animation.front().center, animation.front().axis);
-  }
-  animation.front().currentAngle += angle;
+  //all data from animation to keep it efficient
+  std::vector<RenderCubit*> *cubits = &animation.front().cubits;
+  glm::vec3 center = animation.front().center;
+  glm::vec3 axis = animation.front().axis;
 
+  //update loop
+  for (size_t i = 0; i < cubits->size(); i++) { //for all cubits
+    (*cubits)[i]->update(angle, center, axis);
+  } //for
+
+  animation.front().currentAngle += angle; //update angle
+
+  //bin VBO
   glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 
+  //reload vertices data that has been updated
   glBufferSubData(
     GL_ARRAY_BUFFER,
     0,
@@ -174,32 +161,38 @@ void CubeRenderer::update(float deltatime) {
     vertices
   );
 
-  if (done) {
-    cube->performMove(animation.front().move, animation.front().rotation);
+  if (done) { //do all logical moves if animation is done
+    cube->performMove((MoveID)animation.front().move, animation.front().rotation);
     doPointerMove();
     animation.pop();
   }
-}
+} //update
 
 void CubeRenderer::startMove() {
-  int move = actions->front().move;
+  MoveID move = actions->front().move;
   Rotation direction = actions->front().rotate;
-  SDL_Log("Move: %i, Rotation: %i", move, (int) direction);
-  MoveAnimation newMove;
+  
+  //new animation
+  MoveAnimation newMove; 
+
+  //direction to multiply for correct angle
   float direcMultiply;
   actions->pop();
+
+  //speed of animation
+  newMove.speed = 2.0f;
 
   if (direction == CLOCKWISE) {
     direcMultiply = 1.0f;
   } else if (direction == HALF_CIRCLE) {
     direcMultiply = 2.0f;
-  } else {
+  } else { //inverse speed for opposite direction
+    newMove.speed = -newMove.speed;
     direcMultiply = -1.0f;
   }
+  //set all animation values
   newMove.axis = retrieveAxis(move);
-
-  newMove.rotation = direction;
-  newMove.speed = 2.0f;
+  newMove.rotation = direction; 
   newMove.move = move;
   newMove.targetAngle = direcMultiply * glm::half_pi<float>();
   newMove.currentAngle = 0.0f;
@@ -207,38 +200,37 @@ void CubeRenderer::startMove() {
   animation.push(newMove);
 } //startMove
 
-glm::vec3 CubeRenderer::retrieveAxis(int move) {
+glm::vec3 CubeRenderer::retrieveAxis(MoveID move) {
   switch (move) {
-  case 0: case 1: case 6:
+  case R: case L: case M:
     return {1.0f, 0.0f, 0.0f};
-  case 2: case 3: case 7:
+  case U: case D: case E:
     return {0.0f, 1.0f, 0.0f}; 
-  case 4: case 5: case 8:
-    return {0.0f, 0.0f, 1.0f}; 
-  default: 
-    return {0.0f, 1.0f, 0.0f};
-  }
+  case F: case B: case S:
+    return {0.0f, 0.0f, 1.0f};
+  default : return {};
+  } //switch
 } //retrieveAxis
 
-glm::vec3 CubeRenderer::retrieveCubits_Center(int move, std::vector<RenderCubit*> *vec) {
+glm::vec3 CubeRenderer::retrieveCubits_Center(MoveID move, std::vector<RenderCubit*> *vec) {
   switch (move) {
-  case 0: return retrieveXsurface(vec, 2);
-  case 1: return retrieveXsurface(vec, 0);
-  case 2: return retrieveYsurface(vec, 2);
-  case 3: return retrieveYsurface(vec, 0);
-  case 4: return retrieveZsurface(vec, 0);
-  case 5: return retrieveZsurface(vec, 2);
-  case 6: return retrieveXsurface(vec, 1);
-  case 7: return retrieveYsurface(vec, 1);
-  case 8: return retrieveZsurface(vec, 1);
-  default: return {0.0f, 0.0f, 0.0f};
-  }
+  case R: return retrieveXsurface(vec, 2);
+  case L: return retrieveXsurface(vec, 0);
+  case U: return retrieveYsurface(vec, 2);
+  case D: return retrieveYsurface(vec, 0);
+  case F: return retrieveZsurface(vec, 0);
+  case B: return retrieveZsurface(vec, 2);
+  case M: return retrieveXsurface(vec, 1);
+  case E: return retrieveYsurface(vec, 1);
+  case S: return retrieveZsurface(vec, 1);
+  default : return {};
+  } //switch
 } //retrieveCubits_Center
 
 glm::vec3 CubeRenderer::retrieveXsurface(std::vector<RenderCubit*> *vec, int x) {
   glm::vec3 center;
-  for (size_t i = 0; i < MAX_D; i++) {
-    for (size_t j = 0; j < MAX_D; j++) {
+  for (size_t i = 0; i < MAX_D; i++) { //for all y
+    for (size_t j = 0; j < MAX_D; j++) { //for all z
       vec->push_back(cubitsP[x][i][j]);
       if (i == 1 && j == 1) center = cubitsP[x][i][j]->getCentroid();
     } //for
@@ -248,8 +240,8 @@ glm::vec3 CubeRenderer::retrieveXsurface(std::vector<RenderCubit*> *vec, int x) 
 
 glm::vec3 CubeRenderer::retrieveYsurface(std::vector<RenderCubit*> *vec, int y) {
   glm::vec3 center;
-  for (size_t i = 0; i < MAX_D; i++) {
-    for (size_t j = 0; j < MAX_D; j++) {
+  for (size_t i = 0; i < MAX_D; i++) { //for all x
+    for (size_t j = 0; j < MAX_D; j++) { // for all z
       vec->push_back(cubitsP[i][y][j]);
       if (i == 1 && j == 1) center = cubitsP[i][y][j]->getCentroid();
     } //for
@@ -259,8 +251,8 @@ glm::vec3 CubeRenderer::retrieveYsurface(std::vector<RenderCubit*> *vec, int y) 
 
 glm::vec3 CubeRenderer::retrieveZsurface(std::vector<RenderCubit*> *vec, int z) {
   glm::vec3 center;
-  for (size_t i = 0; i < MAX_D; i++) {
-    for (size_t j = 0; j < MAX_D; j++) {
+  for (size_t i = 0; i < MAX_D; i++) { //for all x
+    for (size_t j = 0; j < MAX_D; j++) { //for all y
       vec->push_back(cubitsP[i][j][z]);
       if (i == 1 && j == 1) center = cubitsP[i][j][z]->getCentroid();
     } //for
@@ -269,24 +261,22 @@ glm::vec3 CubeRenderer::retrieveZsurface(std::vector<RenderCubit*> *vec, int z) 
 } //retrieveZsurface
 
 void CubeRenderer::doPointerMove() {
-  Rotation rotate = animation.front().rotation;
-  
   switch (animation.front().move) {
-    case 0: R_Rotate(rotate); break;
-    case 1: L_Rotate(rotate); break;
-    case 2: U_Rotate(rotate); break;
-    case 3: D_Rotate(rotate); break;
-    case 4: F_Rotate(rotate); break;
-    case 5: B_Rotate(rotate); break;
-    case 6: M_Rotate(rotate); break;
-    case 7: E_Rotate(rotate); break;
-    case 8: S_Rotate(rotate); break;
+    case R: R_Rotate(animation.front().rotation); break;
+    case L: L_Rotate(animation.front().rotation); break;
+    case U: U_Rotate(animation.front().rotation); break;
+    case D: D_Rotate(animation.front().rotation); break;
+    case F: F_Rotate(animation.front().rotation); break;
+    case B: B_Rotate(animation.front().rotation); break;
+    case M: M_Rotate(animation.front().rotation); break;
+    case E: E_Rotate(animation.front().rotation); break;
+    case S: S_Rotate(animation.front().rotation); break;
     default: break;
-  }
+  } //switch
 } //doPointerMove
 
 void CubeRenderer::RLM(Rotation rot, int x) {
-  for (uint8 i = 0; i < rot; i++) {
+  for (uint8 i = 0; i < rot; i++) { //for correct direction
     //move corners
     RenderCubit *temp = cubitsP[x][2][2]; //old back top
     cubitsP[x][2][2] = cubitsP[x][2][0]; //new back top is old front top
@@ -316,7 +306,7 @@ void CubeRenderer::M_Rotate(Rotation rot) {
 } //M_Rotate
 
 void CubeRenderer::UDE(Rotation rot, int y) {
-  for (uint8 i = 0; i < rot; i++) {
+  for (uint8 i = 0; i < rot; i++) { //for correct direction
     //move corners
     RenderCubit *temp = cubitsP[0][y][0]; //old front left
     cubitsP[0][y][0] = cubitsP[2][y][0]; //new front left is old front right 
@@ -346,7 +336,7 @@ void CubeRenderer::E_Rotate(Rotation rot) {
 } //E_Rotate
 
 void CubeRenderer::FBS(Rotation rot, int z) {
-  for (uint8 i = 0; i < rot; i++) {
+  for (uint8 i = 0; i < rot; i++) { //for correct direction
     //move corners
     RenderCubit *temp = cubitsP[0][2][z]; //old top left
     cubitsP[0][2][z] = cubitsP[0][0][z]; //new top left becomes old bottom left
@@ -380,4 +370,4 @@ CubeRenderer::~CubeRenderer() {
   glDeleteBuffers(1, &cubeVBO);
   glDeleteBuffers(1, &cubeEBO);
   glDeleteVertexArrays(1, &cubeVAO);
-}
+} //default destructor

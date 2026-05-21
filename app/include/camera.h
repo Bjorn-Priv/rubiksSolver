@@ -48,8 +48,11 @@ class Camera {
     //action container
     CameraAction *action = nullptr;
 
+    //getter for radius
     float getRadius() const;
 
+    //getter for velocity
+    //is exponential to radius
     float getVelocity() const;
     
   public:
@@ -65,8 +68,10 @@ class Camera {
     glm::highp_mat4 getProjection()
       {return glm::perspective(proj.fov, proj.aspect, proj.near, proj.far);}
 
+    //handles camera action using deltatime in seconds
     void handleAction(float deltatime);
 
+    //default destructor
     ~Camera() = default;
 };
 

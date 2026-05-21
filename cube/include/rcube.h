@@ -14,10 +14,25 @@ enum Rotation : uint8 {
   COUNT_CLOCKWISE = 3
 };
 
+//helper struct to store coordinates on a 3d plane
 struct Coords {
   int z;
   int y;
   int x;
+};
+
+//enumerator for every move identity on RCube
+//R, L, U, D, F, B, M, E, S
+enum MoveID {
+  R,
+  L,
+  U,
+  D,
+  F,
+  B,
+  M,
+  E,
+  S
 };
 
 //main logical rubiks cube class
@@ -39,36 +54,52 @@ class RCube {
     //sets all cubit types to their correct value
     void setCubeCubitTypes();
 
+    //helper function to set 
+    //dest X colour to Y of src
+    //dest Y colour to X of src
+    //dest Z colour to Z of src
     void swapXYcol(Coords dest, const Cubit &src);
+    //helper function to set 
+    //dest X colour to Z of src
+    //dest Y colour to Y of src
+    //dest Z colour to X of src
     void swapXZcol(Coords dest, const Cubit &src);
+    //helper function to set 
+    //dest X colour to X of src
+    //dest Y colour to Z of src
+    //dest Z colour to Y of src
     void swapYZcol(Coords dest, const Cubit &src);
 
+    //helper functions to perform moves R, L, and M 
+    //with the correct x-axis of the face
     void RLM(Rotation, int x);
+    //helper functions to perform moves U, D, and E 
+    //with the correct y-axis of the face
     void UDE(Rotation, int y);
+    //helper functions to perform moves F, B, and S 
+    //with the correct z-axis of the face
     void FBS(Rotation, int z);
+
+    //_ rotation in direction of parameter
+    //in respect to white facing front and green facing top
+    void R_Rotate(Rotation), L_Rotate(Rotation), U_Rotate(Rotation),
+         D_Rotate(Rotation), F_Rotate(Rotation), B_Rotate(Rotation), 
+         M_Rotate(Rotation), E_Rotate(Rotation), S_Rotate(Rotation);
 
   public:
     //default constructor
     RCube();
 
-    void R_Rotate(Rotation);
-    void L_Rotate(Rotation);
-    void U_Rotate(Rotation);
-    void D_Rotate(Rotation);
-    void F_Rotate(Rotation);
-    void B_Rotate(Rotation);
+    //perform move with Move ID move and Rotation rot
+    void performMove(MoveID move, Rotation rot);
 
-    void M_Rotate(Rotation);
-    void E_Rotate(Rotation);
-    void S_Rotate(Rotation);
-    
-    void performMove(int num, int rot);
-
-    void shuffleCube(int moves);
+    //shuffle cube by doing (int)Nmoves different moves
+    void shuffleCube(int Nmoves);
 
     //prints the cube faces in unfolded die form
     void printCube(std::ostream&);
 
+    //getter for specific cubit with coords x, y, z
     Cubit getCubit(int x, int y, int z) const {return cube[z][y][x];}
 
     //default destructor

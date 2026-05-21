@@ -15,22 +15,16 @@ Camera::Camera(CameraAction *a) : action(a) {
     0.1f,
     100.0f
   };
-}
+} //default constructor
 
 float Camera::getRadius() const {
   return glm::distance(view.eye, view.center);
-}
+} //getRadius
 
 float Camera::getVelocity() const {
   return 0.2f * std::pow(getRadius(), 2.0f);
-}
+} //getVelocity
 
-//cameraAction handler
-//container contains: 
-//X - -1, 0 or 1 
-//Y - -1, 0 or 1
-//zoom - -1, 0 or 1
-//rotate - -1, 0 or 1
 void Camera::handleAction(float deltatime) {
   SDL_Log("Before handling: --------------------------------------------------");
   SDL_Log("view.eye: {%f, %f, %f}", view.eye[0], view.eye[1], view.eye[2]);
@@ -41,6 +35,7 @@ void Camera::handleAction(float deltatime) {
   glm::vec3 relativeEye = view.eye - view.center;
 
   float v = getVelocity();
+  
   //grab radius but avoid division by zero
   float r = getRadius();
   if (r < 0.001f) r = 0.001f;
