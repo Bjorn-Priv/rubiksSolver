@@ -134,6 +134,8 @@ class CubeRenderer {
     //updates all centroids for all cubits at each pointer
     void updateCentroids();
 
+    void handleRandom();
+
     //initialise the mesh by generating buffers and attributes
     void initMesh();
 

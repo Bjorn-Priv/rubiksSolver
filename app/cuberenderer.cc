@@ -183,6 +183,43 @@ void CubeRenderer::update(float deltatime) {
   }
 } //update
 
+void CubeRenderer::handleRandom() {
+  int N = 25;
+  std::vector<int> moves;
+  std::vector<int> directions;
+  randomVec(N, &moves, 8, 0);
+  randomVec(N, &directions, 3, 1);
+
+  MoveID move;
+  Rotation direction;
+  //new animation
+  MoveAnimation newMove; 
+  newMove.speed = 30.0f;
+  float direcMultiply;
+
+  for (int i = 0; i < N; i++) {
+    move = (MoveID)moves[i];
+    direction = (Rotation)directions[i];
+
+    if (direction == CLOCKWISE) {
+      direcMultiply = 1.0f;
+    } else if (direction == HALF_CIRCLE) {
+      direcMultiply = 2.0f;
+    } else { //inverse speed for opposite direction
+      newMove.speed = -newMove.speed;
+      direcMultiply = -1.0f;
+    }
+    //set all animation values
+    newMove.axis = retrieveAxis(move);
+    newMove.rotation = direction; 
+    newMove.move = move;
+    newMove.targetAngle = direcMultiply * glm::half_pi<float>();
+    newMove.currentAngle = 0.0f;
+    
+    animation.push(newMove);
+  }
+}
+
 void CubeRenderer::startMove() {
   MoveID move = actions->front().move;
   Rotation direction = actions->front().rotate;
@@ -195,8 +232,11 @@ void CubeRenderer::startMove() {
   actions->pop();
 
   //speed of animation
-  newMove.speed = 2.0f;
-
+  newMove.speed = 5.0f;
+  if (move == RANDOM) {
+    handleRandom();
+    return;
+  }
   if (direction == CLOCKWISE) {
     direcMultiply = 1.0f;
   } else if (direction == HALF_CIRCLE) {

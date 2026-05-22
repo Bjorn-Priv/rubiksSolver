@@ -2,7 +2,7 @@
 #define HRCUBEH
 
 #include "cubits.h"
-#include <random>
+#include "standard.h"
 
 //Degrees of rotation 
 //CLOCKWISE
@@ -32,7 +32,8 @@ enum MoveID {
   B,
   M,
   E,
-  S
+  S, 
+  RANDOM
 };
 
 //main logical rubiks cube class

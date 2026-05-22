@@ -55,6 +55,7 @@ void Keyboard::readCube(const bool *k, int size) {
   bool right = k[SDL_SCANCODE_R];
   bool left = k[SDL_SCANCODE_L];
   bool down = k[SDL_SCANCODE_D];
+  bool random = k[SDL_SCANCODE_LCTRL];
 
   bool shift = k[SDL_SCANCODE_LSHIFT];
 
@@ -62,6 +63,13 @@ void Keyboard::readCube(const bool *k, int size) {
 
   if (shift) rot = COUNT_CLOCKWISE;
 
+
+  if (random) {
+    SDL_Log("READ CTRL!!!!");
+    CubeAction action;
+    action.move = RANDOM;
+    cubeAction->push(action);
+  }
 
   if (front) {
     SDL_Log("READ F!!!!");

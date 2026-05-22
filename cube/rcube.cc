@@ -192,42 +192,15 @@ void RCube::S_Rotate(Rotation rot) {
   FBS(rot, 1);
 } //S_Rotate
 
-void RCube::shuffleCube(int moves) {
-  //vector of pairs {movenum, rotation}
-  std::vector<std::pair<int, int>> sequence;
+void RCube::shuffleCube(int nMove) {
+  std::vector<int> moves;
+  std::vector<int> directions;
+
+  randomVec(nMove, &moves, 8, 0);
+  randomVec(nMove, &directions, 3, 1);
   
-  std::random_device rd; //dunno was needed
-  std::mt19937 gen(rd()); //random num generator
-  
-  //for move a number between 0 - 9
-  std::uniform_int_distribution<> dis_0_9(0, 9);
-  //for rotation a number between 1 and 3
-  std::uniform_int_distribution<> dis_1_3(1, 3);
-
-  if (moves > 0) {
-    //gen  first item
-    int last_num = dis_0_9(gen);
-    int associated_num = dis_1_3(gen);
-    sequence.push_back({last_num, associated_num});
-
-    //gen the remaining items
-    //with no same moves twice behind each other
-    for (int i = 1; i < moves; ++i) {
-      int current_num;
-      do {
-        current_num = dis_0_9(gen);
-      } while (current_num == last_num); //while same
-      
-      int current_associated = dis_1_3(gen);
-      sequence.push_back({current_num, current_associated});
-      
-      last_num = current_num;
-    } //for
-  }
-
-  //output the results: (0-8 value, 1-3 value)
-  for (size_t i = 0; i < sequence.size(); i++) { //for all numbers
-    performMove((MoveID)sequence[i].first, (Rotation)sequence[i].second);
+  for (int i = 0; i < nMove; i++) { //for all numbers
+    performMove((MoveID)(moves[i]), (Rotation)directions[i]);
   } //for
 } //shuffleCube
 
@@ -242,5 +215,6 @@ void RCube::performMove(MoveID move, Rotation rot) {
     case M: M_Rotate(rot); break;
     case E: E_Rotate(rot); break;
     case S: S_Rotate(rot); break;
+    default : break;
   } //switch
 } //performMove

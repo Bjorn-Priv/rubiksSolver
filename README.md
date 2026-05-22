@@ -12,3 +12,5 @@ shift + minus = zoom out
 numpad plus = zoom in
 numpad minus = zoom out
 
+bug: 
+    UDE rotate wrong way
