@@ -196,8 +196,8 @@ void RCube::shuffleCube(int nMove) {
   std::vector<int> moves;
   std::vector<int> directions;
 
-  randomVec(nMove, &moves, 8, 0);
-  randomVec(nMove, &directions, 3, 1);
+  GenRandomVector(nMove, &moves, 8, 0);
+  GenRandomVector(nMove, &directions, 3, 1);
   
   for (int i = 0; i < nMove; i++) { //for all numbers
     performMove((MoveID)(moves[i]), (Rotation)directions[i]);

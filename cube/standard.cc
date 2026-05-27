@@ -1,8 +1,6 @@
 #include "include/standard.h"
 
-//create a vector with N random numbers between MAX inclusive and MIN inclusive
-//where a number k in the sequence is never equal to a number (k-1)
-void randomVec(int N, std::vector<int> *seq, int MAX, int MIN) {
+void GenRandomVector(int N, std::vector<int> *seq, int MAX, int MIN) {
   std::random_device rd; //dunno was needed
   std::mt19937 gen(rd()); //random num generator
   
@@ -25,4 +23,4 @@ void randomVec(int N, std::vector<int> *seq, int MAX, int MIN) {
       last_num = current_num;
     } //for
   }
-}
+} //randomVec

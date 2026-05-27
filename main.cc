@@ -47,7 +47,6 @@ void main_loop(SDL_Window* window, GLuint shader) {
           offsetW = w-h;
           w = h;
         }
-        //SDL_Log("width: %i, Height: %i", w, h);
         //update gl viewport so that cube stays centered in a square viewport
         glViewport((0.5f * offsetW), 0, w, h);
       }
@@ -58,9 +57,6 @@ void main_loop(SDL_Window* window, GLuint shader) {
     } //while
 
     //reset color buffer and depth buffer
-    //color buffer resets screen to background colour 
-    //depth buffer resets depth buffer so that new 3d objects are 
-    //drawn in correct foreground background order
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //calculate deltatime
@@ -69,13 +65,10 @@ void main_loop(SDL_Window* window, GLuint shader) {
 
     lastTicks = currentTicks; //update lastticks
 
-    if (!cameraAction.isEmpty()) { //camera needs to be changed
-      camera.handleAction(deltaTime);
-    }
-    if (!cubeActions.empty()) {
-      SDL_Log("CALLING START MOVE");
-      renderer.startMove();
-    }
+    //handle camera movement
+    camera.handleAction(deltaTime);
+    //create new move
+    renderer.startMove();
 
     //update and render cube
     renderer.update(deltaTime);

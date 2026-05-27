@@ -140,8 +140,15 @@ void CubeRenderer::update(float deltatime) {
   if (animation.front().cubits.empty()) { //if no cubits yet
     animation.front().center = retrieveCubits_Center(animation.front().move, &animation.front().cubits);
   }
+
+  //if its not random and there are lots of animations increase speed
+  float sizeHandler = 1.0f;
+  if (!animation.front().random) {
+    sizeHandler = 1.0f + animation.size()/3;
+  }
+
   //calculate angle that needs to be traveled
-  float angle = animation.front().speed * deltatime;
+  float angle = animation.front().speed * sizeHandler * deltatime;
 
   //animation finished
   bool done = false;
@@ -184,20 +191,24 @@ void CubeRenderer::update(float deltatime) {
 } //update
 
 void CubeRenderer::handleRandom() {
-  int N = 25;
+  //generate N_Random random numbers
   std::vector<int> moves;
   std::vector<int> directions;
-  randomVec(N, &moves, 8, 0);
-  randomVec(N, &directions, 3, 1);
+  GenRandomVector(N_Random, &moves, 8, 0);
+  GenRandomVector(N_Random, &directions, 3, 1);
 
+  //random move
   MoveID move;
+  //random direction
   Rotation direction;
+
   //new animation
   MoveAnimation newMove; 
+  //faster animation for shuffle
   newMove.speed = 30.0f;
+  //direction with which to multiply angle
   float direcMultiply;
-
-  for (int i = 0; i < N; i++) {
+  for (int i = 0; i < N_Random; i++) { //for all random moves
     move = (MoveID)moves[i];
     direction = (Rotation)directions[i];
 
@@ -215,13 +226,23 @@ void CubeRenderer::handleRandom() {
     newMove.move = move;
     newMove.targetAngle = direcMultiply * glm::half_pi<float>();
     newMove.currentAngle = 0.0f;
+    newMove.random = true;
     
     animation.push(newMove);
-  }
-}
+  } //for
+} //handleRandom
 
 void CubeRenderer::startMove() {
+  if (actions->empty()) return;
+
   MoveID move = actions->front().move;
+
+  if (move == RANDOM) {
+    handleRandom();
+    actions->pop();
+    return;
+  }
+
   Rotation direction = actions->front().rotate;
   
   //new animation
@@ -231,12 +252,6 @@ void CubeRenderer::startMove() {
   float direcMultiply;
   actions->pop();
 
-  //speed of animation
-  newMove.speed = 5.0f;
-  if (move == RANDOM) {
-    handleRandom();
-    return;
-  }
   if (direction == CLOCKWISE) {
     direcMultiply = 1.0f;
   } else if (direction == HALF_CIRCLE) {

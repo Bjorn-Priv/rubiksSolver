@@ -23,7 +23,10 @@ struct MoveAnimation {
   MoveID move; 
 
   //speed of animation
-  float speed = 2.0f; 
+  float speed = 5.0f; 
+
+  //if its part of a random shuffle
+  bool random = false;
 
   //vector of cubits that need to rotate
   std::vector<RenderCubit*> cubits; 
@@ -78,6 +81,9 @@ class CubeRenderer {
 
     //global variable locations in shader program
     GLint viewLoc, projLoc;
+
+    //amount of moves to shuffle cube with if random
+    int N_Random = 25;
 
     //wrapper function to rotate cubits pointers using the front most move in the action queue
     //should be called at the end of an animation so that logically everything stays aligned
@@ -134,6 +140,7 @@ class CubeRenderer {
     //updates all centroids for all cubits at each pointer
     void updateCentroids();
 
+    //generates random moves
     void handleRandom();
 
     //initialise the mesh by generating buffers and attributes
@@ -151,6 +158,9 @@ class CubeRenderer {
 
     //render all the cubits
     void render();
+
+    //sets amount of moves to use when shuffling cube
+    void setRandomNum(int N){N_Random = N;};
 
     //initiate an animation 
     //by grabbing an action from the queue

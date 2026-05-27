@@ -26,6 +26,8 @@ float Camera::getVelocity() const {
 } //getVelocity
 
 void Camera::handleAction(float deltatime) {
+  if (action == nullptr || action->isEmpty()) return;
+
   SDL_Log("Before handling: --------------------------------------------------");
   SDL_Log("view.eye: {%f, %f, %f}", view.eye[0], view.eye[1], view.eye[2]);
   SDL_Log("view.center: {%f, %f, %f}", view.center[0], view.center[1], view.center[2]);

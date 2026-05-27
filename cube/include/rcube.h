@@ -3,6 +3,7 @@
 
 #include "cubits.h"
 #include "standard.h"
+#include <stack>
 
 //Degrees of rotation 
 //CLOCKWISE
@@ -33,7 +34,25 @@ enum MoveID {
   M,
   E,
   S, 
-  RANDOM
+  RANDOM,
+  SOLVE
+};
+
+
+//main struct to store camera actions
+struct CameraAction {
+  int X = 0; //left or right of cube
+  int Y = 0; //over or under cube
+  int zoom = 0; //zoom in or out to cube
+
+  //checks if cameraaction needs updating
+  bool isEmpty() {return X == 0 && Y == 0 && zoom == 0;}
+};
+
+//main struct to store cube actions
+struct CubeAction {
+  MoveID move; 
+  Rotation rotate; 
 };
 
 //main logical rubiks cube class
