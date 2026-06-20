@@ -3,7 +3,6 @@
 RCube::RCube() {
   setCubeCubitTypes();
   setCubeColoursSolved();
-  printCube(std::cout);
 } //default constructor
 
 void RCube::setCubeColoursSolved() {

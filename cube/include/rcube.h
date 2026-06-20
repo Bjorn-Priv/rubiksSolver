@@ -3,6 +3,7 @@
 
 #include "cubits.h"
 #include "standard.h"
+#include "kociemba.h"
 #include <stack>
 
 //Degrees of rotation 
