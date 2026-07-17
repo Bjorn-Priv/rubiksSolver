@@ -68,6 +68,8 @@ class RCube {
     //contains the unfolded cube in unfolded die form
     Colour face[MAX_NCOLOURS][MAX_D][MAX_D];
 
+    Kociemba kociemba;
+
     //sets all colours of the cube to their solved state
     void setCubeColoursSolved();
     //infers cube faces from the Cubit cube
