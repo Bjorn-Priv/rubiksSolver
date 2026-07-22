@@ -15,6 +15,10 @@ int const MAXEP = 40320;
 int const MAXSLICE = 495;
 int const MAXSLICEP = 24;
 
+int const EQCL_FLIPUD = 64430;
+int const EQCL_CP = 2768;
+int const EQCL_SLICE = 788;
+
 enum Edge : uint8 {
   UR,
   UF,
@@ -90,7 +94,6 @@ class CubieCube {
   //set permutation of edges to p
   void setEP(int p);
 
-
   //gets slice coordinate
   int getSlice();
   //sets slice coordinate
@@ -100,6 +103,11 @@ class CubieCube {
   int getUDSlicePerm();
   //set UDSlice coordinate
   void setUDSlicePerm(int s);
+
+  //getter for symmetry equivalence class
+  int getFlipUDSlice();
+  //set flip udslice value (non unique)
+  void setFlipUDSlice(int f);
 
   void move(Moves m);
 
@@ -116,6 +124,12 @@ class Kociemba {
   std::vector<std::vector<int>> CPMOVE;
   std::vector<std::vector<int>> EPMOVE;
   std::vector<std::vector<int>> SLICEPMOVE;
+
+  std::vector<int> CLASSIDX_REPR;
+
+  std::vector<std::vector<int>> FLIPSLICESYM;
+  std::vector<std::vector<int>> CPSYM;
+  std::vector<std::vector<int>> UDSLICESYM;
 
   std::vector<std::vector<int>> pruneP1;
   std::vector<std::vector<int>> pruneP2;

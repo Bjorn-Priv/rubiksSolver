@@ -255,6 +255,15 @@ void CubieCube::setUDSlicePerm(int s) {
   }
 }
 
+int CubieCube::getFlipUDSlice() {
+  return getSlice()*MAXEO + getEO();
+}
+
+void CubieCube::setFlipUDSlice(int f) {
+  setSlice(f / MAXEO);
+  setEO(f % MAXEO);
+}
+
 void CubieCube::move(Moves m) {
   switch (m) {
   case U3: *this = *this * MOVE_U * MOVE_U * MOVE_U; break;
@@ -301,7 +310,10 @@ CubieCube CubieCube::operator*(const CubieCube &a) const {
 Kociemba::Kociemba() : COMOVE(MAXCO, std::vector<int>(NMOVES1)), EOMOVE(MAXEO, std::vector<int>(NMOVES1)), 
                        SLICEMOVE(MAXSLICE, std::vector<int>(NMOVES1)),
                        CPMOVE(MAXCP, std::vector<int>(NMOVES2)), EPMOVE(MAXEP, std::vector<int>(NMOVES2)), 
-                       SLICEPMOVE(MAXSLICEP, std::vector<int>(NMOVES2)) {
+                       SLICEPMOVE(MAXSLICEP, std::vector<int>(NMOVES2)),
+                       CLASSIDX_REPR(EQCL_FLIPUD),
+                       FLIPSLICESYM(EQCL_FLIPUD, std::vector<int>(NMOVES1)),
+                       CPSYM(EQCL_CP, std::vector<int>(NMOVES1)), UDSLICESYM(EQCL_SLICE, std::vector<int>(NMOVES1)) {
   initPhase1();
   initPhase2();
 }
